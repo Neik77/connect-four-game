@@ -153,6 +153,197 @@ const COLS=7, ROWS=6;
 let board, current, difficulty='easy', levelOrder=['easy','medium','hard','legendary'];
 let wins=0, losses=0;
 const boardEl=document.getElementById('board');
-const status=document.getElementById('stat
+const status=document.getElementById('status');
+const winsEl=document.getElementById('wins');
+const lossesEl=document.getElementById('losses');
+const levelEl=document.getElementById('level');
+const levelBtns=document.querySelectorAll('.level');
+const restartBtn=document.getElementById('restart');
+
+loadScores();
+
+function loadScores(){
+  const saved=JSON.parse(localStorage.getItem('LLArcadeScores')||'{}');
+  wins=saved.wins||0;
+  losses=saved.losses||0;
+  difficulty=saved.level||'easy';
+  updateScoreboard();
+}
+function saveScores(){
+  localStorage.setItem('LLArcadeScores',JSON.stringify({wins,losses,level:difficulty}));
+}
+function initBoard(){
+  board=Array.from({length:ROWS},()=>Array(COLS).fill(null));
+  current='red';
+  status.textContent='Select a column to start playing.';
+  drawBoard();
+}
+function drawBoard(){
+  boardEl.innerHTML='';
+  board.forEach((row,r)=>{
+    row.forEach((cell,c)=>{
+      const div=document.createElement('div');
+      let baseClass='cell '+(cell||((r+c)%2?'gold':'white'));
+      div.className=baseClass;
+      div.onclick=()=>{ if(current==='red') dropPiece(c); };
+      boardEl.appendChild(div);
+    });
+  });
+}
+function dropPiece(c){
+  for(let r=ROWS-1;r>=0;r--){
+    if(!board[r][c]){
+      board[r][c]=current;
+      if(checkWin(r,c)){
+        handleWin(current);
+        return;
+      }
+      current=current==='red'?'yellow':'red';
+      drawBoard();
+      if(current==='yellow') setTimeout(aiMove,600);
+      return;
+    }
+  }
+}
+function checkWin(r,c){
+  const dirs=[[1,0],[0,1],[1,1],[1,-1]];
+  return dirs.some(([dr,dc])=>{
+    let count=1;
+    for(let i=1;i<4;i++){ if(board[r+dr*i]?.[c+dc*i]===current)count++;else break;}
+    for(let i=1;i<4;i++){ if(board[r-dr*i]?.[c-dc*i]===current)count++;else break;}
+    return count>=4;
+  });
+}
+function handleWin(player){
+  disableClicks();
+  if(player==='red'){
+    wins++;
+    status.textContent='You Win!';
+    flashLevel();
+    autoLevelUp();
+  } else {
+    losses++;
+    status.textContent='Computer Wins!';
+  }
+  updateScoreboard();
+  saveScores();
+}
+function disableClicks(){
+  document.querySelectorAll('.cell').forEach(cell=>cell.onclick=null);
+}
+function aiMove(){
+  let move;
+  switch(difficulty){
+    case 'easy': move=randomMove(); break;
+    case 'medium': move=blockMove()??randomMove(); break;
+    case 'hard': move=winMove()??blockMove()??randomMove(); break;
+    case 'legendary': move=smartMove()??winMove()??blockMove()??randomMove(); break;
+  }
+  if(move!==undefined) dropPiece(move);
+}
+function randomMove(){
+  const options=board[0].map((_,i)=>i).filter(c=>!board[0][c]);
+  return options[Math.floor(Math.random()*options.length)];
+}
+function blockMove(){
+  for(let c=0;c<COLS;c++){
+    const r=findRow(c);
+    if(r!==-1){
+      board[r][c]='red';
+      if(checkWin(r,c)){ board[r][c]=null; return c;}
+      board[r][c]=null;
+    }
+  }
+}
+function winMove(){
+  for(let c=0;c<COLS;c++){
+    const r=findRow(c);
+    if(r!==-1){
+      board[r][c]='yellow';
+      if(checkWin(r,c)){ board[r][c]=null; return c;}
+      board[r][c]=null;
+    }
+  }
+}
+function smartMove(){
+  const safeMoves=[];
+  for(let c=0;c<COLS;c++){
+    const r=findRow(c);
+    if(r!==-1){
+      board[r][c]='yellow';
+      let opponentWin=false;
+      for(let cc=0;cc<COLS;cc++){
+        const rr=findRow(cc);
+        if(rr!==-1){
+          board[rr][cc]='red';
+          if(checkWin(rr,cc)) opponentWin=true;
+          board[rr][cc]=null;
+        }
+      }
+      board[r][c]=null;
+      if(!opponentWin) safeMoves.push(c);
+    }
+  }
+  return safeMoves.length ? safeMoves[Math.floor(Math.random()*safeMoves.length)] : randomMove();
+}
+function findRow(c){
+  for(let r=ROWS-1;r>=0;r--) if(!board[r][c]) return r;
+  return -1;
+}
+function autoLevelUp(){
+  let i=levelOrder.indexOf(difficulty);
+  if(i<levelOrder.length-1){
+    difficulty=levelOrder[i+1];
+    flashLevel();
+  }
+  updateScoreboard();
+  saveScores();
+}
+function flashLevel(){
+  levelEl.classList.add('flash');
+  setTimeout(()=>levelEl.classList.remove('flash'),800);
+}
+function updateScoreboard(){
+  winsEl.textContent=wins;
+  lossesEl.textContent=losses;
+  levelEl.textContent=difficulty.toUpperCase();
+  updateLevelButtons();
+}
+function updateLevelButtons(){
+  levelBtns.forEach(btn=>{
+    btn.classList.toggle('active',btn.dataset.diff===difficulty);
+  });
+}
+levelBtns.forEach(btn=>{
+  btn.onclick=()=>{
+    difficulty=btn.dataset.diff;
+    updateLevelButtons();
+    initBoard();
+    status.textContent='Difficulty set to '+difficulty.toUpperCase();
+    updateScoreboard();
+    saveScores();
+  };
+});
+let restartClicks=0;
+restartBtn.onclick=()=>{
+  restartClicks++;
+  if(restartClicks>=2){
+    wins=0; losses=0; difficulty='easy';
+    localStorage.removeItem('LLArcadeScores');
+    restartClicks=0;
+    status.textContent='Game fully reset.';
+  } else {
+    initBoard();
+    status.textContent='Game restarted (double-click to reset stats).';
+    setTimeout(()=>restartClicks=0,2000);
+  }
+  updateScoreboard();
+  saveScores();
+};
+initBoard();
+updateScoreboard();
+</script>
+</body>
+</html>
 
 
