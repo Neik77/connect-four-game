@@ -103,3 +103,159 @@
 <body>
   <h1>Legacy Lounge Arcade Edition™</h1>
   <div id="controls">
+    <button class="level active" data-diff="easy">Easy</button>
+    <button class="level" data-diff="medium">Medium</button>
+    <button class="level" data-diff="hard">Hard</button>
+    <button class="level" data-diff="legendary">Legendary</button>
+  </div>
+  <div id="board"></div>
+  <p id="status">Select a column to start playing.</p>
+  <button id="restart">Restart Game</button>
+
+  <audio id="dropSound" src="https://actions.google.com/sounds/v1/cartoon/pop.ogg"></audio>
+  <audio id="winSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
+
+<script>
+const COLS=7, ROWS=6;
+let board, current, difficulty='easy', levelOrder=['easy','medium','hard','legendary'];
+const boardEl=document.getElementById('board');
+const status=document.getElementById('status');
+const dropSound=document.getElementById('dropSound');
+const winSound=document.getElementById('winSound');
+const levelBtns=document.querySelectorAll('.level');
+const restartBtn=document.getElementById('restart');
+
+function initBoard(){
+  board=Array.from({length:ROWS},()=>Array(COLS).fill(null));
+  current='red';
+  status.textContent='Select a column to start playing.';
+  drawBoard();
+}
+function drawBoard(){
+  boardEl.innerHTML='';
+  board.forEach((row,r)=>{
+    row.forEach((cell,c)=>{
+      const div=document.createElement('div');
+      let baseClass='cell '+(cell||((r+c)%2?'gold':'white'));
+      div.className=baseClass;
+      div.onclick=()=>{ if(current==='red') dropPiece(c); };
+      boardEl.appendChild(div);
+    });
+  });
+}
+function dropPiece(c){
+  for(let r=ROWS-1;r>=0;r--){
+    if(!board[r][c]){
+      board[r][c]=current;
+      playSound(dropSound);
+      if(checkWin(r,c)){
+        status.textContent=current.toUpperCase()+' WINS!';
+        playSound(winSound);
+        disableClicks();
+        if(current==='red') autoLevelUp();
+        return;
+      }
+      current=current==='red'?'yellow':'red';
+      drawBoard();
+      if(current==='yellow') setTimeout(aiMove,700);
+      return;
+    }
+  }
+}
+function playSound(sound){ sound.currentTime=0; sound.play(); }
+function disableClicks(){ document.querySelectorAll('.cell').forEach(cell=>cell.onclick=null); }
+function checkWin(r,c){
+  const dirs=[[1,0],[0,1],[1,1],[1,-1]];
+  return dirs.some(([dr,dc])=>{
+    let count=1;
+    for(let i=1;i<4;i++){ if(board[r+dr*i]?.[c+dc*i]===current)count++;else break;}
+    for(let i=1;i<4;i++){ if(board[r-dr*i]?.[c-dc*i]===current)count++;else break;}
+    return count>=4;
+  });
+}
+function aiMove(){
+  let move;
+  switch(difficulty){
+    case 'easy': move=randomMove(); break;
+    case 'medium': move=blockMove()??randomMove(); break;
+    case 'hard': move=winMove()??blockMove()??randomMove(); break;
+    case 'legendary': move=smartMove()??winMove()??blockMove()??randomMove(); break;
+  }
+  if(move!==undefined) dropPiece(move);
+}
+function randomMove(){
+  const options=board[0].map((_,i)=>i).filter(c=>!board[0][c]);
+  return options[Math.floor(Math.random()*options.length)];
+}
+function blockMove(){
+  for(let c=0;c<COLS;c++){
+    const r=findRow(c);
+    if(r!==-1){
+      board[r][c]='red';
+      if(checkWin(r,c)){ board[r][c]=null; return c;}
+      board[r][c]=null;
+    }
+  }
+}
+function winMove(){
+  for(let c=0;c<COLS;c++){
+    const r=findRow(c);
+    if(r!==-1){
+      board[r][c]='yellow';
+      if(checkWin(r,c)){ board[r][c]=null; return c;}
+      board[r][c]=null;
+    }
+  }
+}
+function smartMove(){
+  const safeMoves=[];
+  for(let c=0;c<COLS;c++){
+    const r=findRow(c);
+    if(r!==-1){
+      board[r][c]='yellow';
+      let opponentWin=false;
+      for(let cc=0;cc<COLS;cc++){
+        const rr=findRow(cc);
+        if(rr!==-1){
+          board[rr][cc]='red';
+          if(checkWin(rr,cc)) opponentWin=true;
+          board[rr][cc]=null;
+        }
+      }
+      board[r][c]=null;
+      if(!opponentWin) safeMoves.push(c);
+    }
+  }
+  return safeMoves.length ? safeMoves[Math.floor(Math.random()*safeMoves.length)] : randomMove();
+}
+function findRow(c){
+  for(let r=ROWS-1;r>=0;r--) if(!board[r][c]) return r;
+  return -1;
+}
+function autoLevelUp(){
+  let i=levelOrder.indexOf(difficulty);
+  if(i<levelOrder.length-1){
+    difficulty=levelOrder[i+1];
+    updateLevelButtons();
+    status.textContent='Level up! Difficulty: '+difficulty.toUpperCase();
+  }
+}
+function updateLevelButtons(){
+  levelBtns.forEach(btn=>{
+    btn.classList.toggle('active',btn.dataset.diff===difficulty);
+  });
+}
+levelBtns.forEach(btn=>{
+  btn.onclick=()=>{
+    difficulty=btn.dataset.diff;
+    updateLevelButtons();
+    initBoard();
+    status.textContent='Difficulty set to '+difficulty.toUpperCase();
+  };
+});
+restartBtn.onclick=()=>initBoard();
+initBoard();
+</script>
+</body>
+</html>
+
