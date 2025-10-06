@@ -233,14 +233,27 @@ function disableClicks(){
 }
 function aiMove(){
   let move;
-  switch(difficulty){
-    case 'easy': move=randomMove(); break;
-    case 'medium': move=blockMove()??randomMove(); break;
-    case 'hard': move=winMove()??blockMove()??randomMove(); break;
-    case 'legendary': move=smartMove()??winMove()??blockMove()??randomMove(); break;
+  const mode = difficulty.toLowerCase(); // ✅ always pull fresh value
+  switch(mode){
+    case 'easy':
+      move = randomMove();
+      break;
+    case 'medium':
+      move = blockMove() ?? randomMove();
+      break;
+    case 'hard':
+      move = winMove() ?? blockMove() ?? randomMove();
+      break;
+    case 'legendary':
+      move = smartMove() ?? winMove() ?? blockMove() ?? randomMove();
+      break;
+    default:
+      move = randomMove();
+      break;
   }
-  if(move!==undefined) dropPiece(move);
+  if(move !== undefined) dropPiece(move);
 }
+
 function randomMove(){
   const options=board[0].map((_,i)=>i).filter(c=>!board[0][c]);
   return options[Math.floor(Math.random()*options.length)];
