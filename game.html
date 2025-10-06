@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Connect 4 Game</title>
+<style>
+  body { background: #222; color: white; text-align: center; font-family: sans-serif; }
+  #board { display: grid; grid-template-columns: repeat(7, 80px); gap: 5px; justify-content: center; margin-top: 20px; }
+  .cell { width: 80px; height: 80px; border-radius: 50%; background: #444; cursor: pointer; }
+  .cell.red { background: red; }
+  .cell.yellow { background: gold; }
+</style>
+</head>
+<body>
+<h1>Connect 4</h1>
+<div id="board"></div>
+<p id="status"></p>
+
+<script>
+const COLS = 7, ROWS = 6;
+let board = Array.from({length: ROWS}, () => Array(COLS).fill(null));
+let current = 'red';
+const boardEl = document.getElementById('board');
+const status = document.getElementById('status');
+
+function drawBoard(){
+  boardEl.innerHTML = '';
+  board.forEach((row, r) => {
+    row.forEach((cell, c) => {
+      const div = document.createElement('div');
+      div.className = 'cell ' + (cell || '');
+      div.onclick = () => dropPiece(c);
+      boardEl.appendChild(div);
+    });
+  });
+}
+
+function dropPiece(c){
+  for(let r=ROWS-1; r>=0; r--){
+    if(!board[r][c]){
+      board[r][c] = current;
+      if(checkWin(r,c)) { status.textContent = current.toUpperCase() + ' WINS!'; disableClicks(); return; }
+      current = current === 'red' ? 'yellow' : 'red';
+      drawBoard();
+      return;
+    }
+  }
+}
+
+function disableClicks(){
+  document.querySelectorAll('.cell').forEach(cell => cell.onclick = null);
+}
+
+function checkWin(r,c){
+  const dirs = [[1,0],[0,1],[1,1],[1,-1]];
+  return dirs.some(([dr,dc])=>{
+    let count=1;
+    for(let i=1;i<4;i++){ if(board[r+dr*i]?.[c+dc*i]==current) count++; else break; }
+    for(let i=1;i<4;i++){ if(board[r-dr*i]?.[c-dc*i]==current) count++; else break; }
+    return count>=4;
+  });
+}
+
+drawBoard();
+</script>
+</body>
+</html>
