@@ -3,361 +3,264 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Legacy Lounge Arcade Edition™</title>
+<title>CREATE × CREDIT Starter Flow™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
+  :root {
+    color-scheme: light;
+  }
   body {
-    background: #000;
-    color: #fff;
-    font-family: 'Trebuchet MS', sans-serif;
-    text-align: center;
+    font-family: 'Raleway', sans-serif;
+    background: #f8f8f4;
+    color: #222;
     margin: 0;
-    padding: 0;
+    padding: 2rem;
   }
   h1 {
-    color: gold;
-    text-shadow: 0 0 15px gold;
-    margin-top: 25px;
-    font-size: 2em;
+    margin-top: 0;
   }
-
-  /* Scoreboard */
-  #scoreboard {
-    background: linear-gradient(145deg, #111, #000);
-    border: 2px solid gold;
-    display: inline-block;
-    padding: 10px 25px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
-    margin-top: 10px;
-    color: #fff;
-    font-size: 1.1em;
-    letter-spacing: 1px;
+  h2 {
+    color: #c59b00;
   }
-  #scoreboard span {
-    color: gold;
-    font-weight: bold;
+  p {
+    max-width: 680px;
   }
-
-  #board {
-    display: grid;
-    grid-template-columns: repeat(7, 70px);
-    gap: 5px;
-    justify-content: center;
-    margin: 30px auto;
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin: 1.5rem 0 1rem;
   }
-  .cell {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    background: linear-gradient(145deg, #222, #000);
-    box-shadow: inset 0 0 10px #111;
+  .tab {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
     cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  .cell.red {
-    background: radial-gradient(circle at 30% 30%, #ff3b3b, #a60000);
-    box-shadow: 0 0 15px #ff3b3b;
-  }
-  .cell.yellow {
-    background: radial-gradient(circle at 30% 30%, gold, #b8860b);
-    box-shadow: 0 0 15px gold;
-  }
-  .cell.white {
-    background: radial-gradient(circle at 30% 30%, #fff, #ccc);
-    box-shadow: 0 0 10px #fff;
-  }
-
-  #status {
-    font-size: 1.2em;
-    color: gold;
-    margin: 10px 0;
-    text-shadow: 0 0 10px gold;
-  }
-  #controls {
-    margin: 15px 0;
-  }
-  button.level {
-    background: gold;
-    color: #000;
-    border: none;
-    padding: 10px 18px;
-    margin: 0 6px;
-    border-radius: 8px;
-    font-weight: bold;
-    font-size: 14px;
-    cursor: pointer;
-    box-shadow: 0 5px #b8860b;
-    transition: all 0.2s ease;
-  }
-  button.level:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 15px rgba(255,215,0,0.6);
-  }
-  button.level.active {
+    font-weight: 600;
     background: #fff;
-    color: #000;
-    box-shadow: 0 0 20px gold;
+    transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
   }
-  #restart {
-    background: linear-gradient(145deg, #b8860b, gold);
+  .tab:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  .tab.active {
+    background: #c59b00;
+    color: #fff;
+    border-color: #c59b00;
+    box-shadow: 0 4px 16px rgba(197, 155, 0, 0.35);
+  }
+  .panel {
+    display: none;
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  }
+  .panel.show {
+    display: block;
+  }
+  label {
+    display: block;
+    margin-top: 1rem;
+    font-weight: 600;
+  }
+  select,
+  textarea,
+  button {
+    width: 100%;
+    padding: 0.65rem;
+    margin-top: 0.35rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 1rem;
+  }
+  textarea {
+    height: 140px;
+    resize: vertical;
+  }
+  .btn {
+    background: #c59b00;
+    color: #fff;
+    font-weight: 700;
     border: none;
-    color: #000;
-    padding: 10px 25px;
-    border-radius: 8px;
-    font-weight: bold;
-    font-size: 16px;
+    margin-top: 1.25rem;
     cursor: pointer;
-    margin-top: 15px;
-    box-shadow: 0 5px #b8860b;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
-  #restart:hover {
-    box-shadow: 0 0 25px gold;
-    transform: translateY(-2px);
+  .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(197, 155, 0, 0.3);
+  }
+  footer {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid #ddd;
+    text-align: center;
+  }
+  footer a {
+    margin: 0 10px;
+    text-decoration: none;
+    color: #c59b00;
+    font-weight: 600;
+  }
+  footer a:hover {
+    text-decoration: underline;
   }
   @media (max-width: 600px) {
-    #board { grid-template-columns: repeat(7, 45px); }
-    .cell { width: 45px; height: 45px; }
-  }
-  .flash {
-    animation: flashGold 0.8s ease;
-  }
-  @keyframes flashGold {
-    0% { text-shadow: 0 0 10px gold; color: gold; }
-    50% { text-shadow: 0 0 25px white; color: white; }
-    100% { text-shadow: 0 0 10px gold; color: gold; }
+    body {
+      padding: 1.25rem;
+    }
+    .panel {
+      padding: 1.25rem;
+    }
+    textarea {
+      height: 120px;
+    }
   }
 </style>
 </head>
 <body>
-  <h1>Legacy Lounge Arcade Edition™</h1>
 
-  <div id="scoreboard">
-    Wins: <span id="wins">0</span> | 
-    Losses: <span id="losses">0</span> | 
-    Level: <span id="level">EASY</span>
-  </div>
+<h1>CREATE × CREDIT Starter Flow™</h1>
+<p><strong>Mini Workflow Generator</strong> — pick your options, press Generate, and get a personalized plan you can copy and use today.</p>
 
-  <div id="controls">
-    <button class="level active" data-diff="easy">Easy</button>
-    <button class="level" data-diff="medium">Medium</button>
-    <button class="level" data-diff="hard">Hard</button>
-    <button class="level" data-diff="legendary">Legendary</button>
-  </div>
+<div class="tabs" role="tablist" aria-label="Starter Flow Tabs">
+  <button class="tab active" id="tabCreate" role="tab" aria-controls="panelCreate" aria-selected="true">CREATE Flow</button>
+  <button class="tab" id="tabCredit" role="tab" aria-controls="panelCredit" aria-selected="false">CREDIT Flow</button>
+</div>
 
-  <div id="board"></div>
-  <p id="status">Select a column to start playing.</p>
-  <button id="restart">Restart Game</button>
+<!-- CREATE Panel -->
+<section class="panel show" id="panelCreate" role="tabpanel" aria-labelledby="tabCreate">
+  <h2>CREATE: Build Your Daily Creative Plan</h2>
+  <label for="craft">Pick your craft focus</label>
+  <select id="craft">
+    <option>Handmade candles</option>
+    <option>Custom apparel</option>
+    <option>Jewelry</option>
+    <option>Digital art prints</option>
+    <option>Other</option>
+  </select>
+
+  <label for="goal">Choose a daily goal</label>
+  <select id="goal">
+    <option>Plan one product post</option>
+    <option>Write one listing description</option>
+    <option>Engage with 3 customers</option>
+    <option>Organize workspace</option>
+  </select>
+
+  <label for="aihelp">Preferred AI help</label>
+  <select id="aihelp">
+    <option>Write my captions</option>
+    <option>Brainstorm product ideas</option>
+    <option>Repurpose yesterday’s post</option>
+    <option>None today</option>
+  </select>
+
+  <button class="btn" id="genCreate">Generate CREATE Plan</button>
+  <textarea id="outCreate" placeholder="Your CREATE plan will appear here..." aria-label="CREATE plan output"></textarea>
+</section>
+
+<!-- CREDIT Panel -->
+<section class="panel" id="panelCredit" role="tabpanel" aria-labelledby="tabCredit" aria-hidden="true">
+  <h2>CREDIT: Set Up Your Business Foundation</h2>
+  <label for="stage">Business stage</label>
+  <select id="stage">
+    <option>Just starting</option>
+    <option>Have LLC</option>
+    <option>Need vendor accounts</option>
+  </select>
+
+  <label for="learn">What do you want to learn first?</label>
+  <select id="learn">
+    <option>How to get an EIN</option>
+    <option>How to open business bank account</option>
+    <option>How to find vendor accounts</option>
+  </select>
+
+  <button class="btn" id="genCredit">Generate CREDIT Plan</button>
+  <textarea id="outCredit" placeholder="Your CREDIT plan will appear here..." aria-label="CREDIT plan output"></textarea>
+</section>
+
+<button class="btn" id="copyAll">Copy My Starter Flow</button>
+
+<footer>
+  <p><strong>Powered by Queen Neik ™ × Legacy Lounge Lab ™</strong></p>
+  <a href="https://beacons.ai/mzcookie" target="_blank" rel="noopener noreferrer">🛍 Shop With Me</a>
+  <a href="https://www.skool.com/legacy-lounge-2342/about?ref=5790fc1c1cf840ceb28a0dcd33c9ac96" target="_blank" rel="noopener noreferrer">💬 Join My Community</a>
+  <a href="https://www.skool.com/digitaldownloadsuccess/about?ref=5790fc1c1cf840ceb28a0dcd33c9ac96" target="_blank" rel="noopener noreferrer">🎓 Master Your Skills</a>
+</footer>
 
 <script>
-const COLS=7, ROWS=6;
-let board, current, difficulty='easy', levelOrder=['easy','medium','hard','legendary'];
-let wins=0, losses=0;
-const boardEl=document.getElementById('board');
-const status=document.getElementById('status');
-const winsEl=document.getElementById('wins');
-const lossesEl=document.getElementById('losses');
-const levelEl=document.getElementById('level');
-const levelBtns=document.querySelectorAll('.level');
-const restartBtn=document.getElementById('restart');
+const tabs = document.querySelectorAll('.tab');
+const panels = document.querySelectorAll('.panel');
 
-loadScores();
-
-function loadScores(){
-  const saved=JSON.parse(localStorage.getItem('LLArcadeScores')||'{}');
-  wins=saved.wins||0;
-  losses=saved.losses||0;
-  difficulty=saved.level||'easy';
-  updateScoreboard();
-}
-function saveScores(){
-  localStorage.setItem('LLArcadeScores',JSON.stringify({wins,losses,level:difficulty}));
-}
-function initBoard(){
-  board=Array.from({length:ROWS},()=>Array(COLS).fill(null));
-  current='red';
-  status.textContent='Select a column to start playing.';
-  drawBoard();
-}
-function drawBoard(){
-  boardEl.innerHTML='';
-  board.forEach((row,r)=>{
-    row.forEach((cell,c)=>{
-      const div=document.createElement('div');
-      let baseClass='cell '+(cell||((r+c)%2?'gold':'white'));
-      div.className=baseClass;
-      div.onclick=()=>{ if(current==='red') dropPiece(c); };
-      boardEl.appendChild(div);
+tabs.forEach((tab, index) => {
+  tab.addEventListener('click', () => {
+    tabs.forEach(btn => {
+      btn.classList.remove('active');
+      btn.setAttribute('aria-selected', 'false');
     });
-  });
-}
-function dropPiece(c){
-  for(let r=ROWS-1;r>=0;r--){
-    if(!board[r][c]){
-      board[r][c]=current;
-      if(checkWin(r,c)){
-        handleWin(current);
-        return;
-      }
-      current=current==='red'?'yellow':'red';
-      drawBoard();
-      if(current==='yellow') setTimeout(aiMove,600);
-      return;
-    }
-  }
-}
-function checkWin(r,c){
-  const dirs=[[1,0],[0,1],[1,1],[1,-1]];
-  return dirs.some(([dr,dc])=>{
-    let count=1;
-    for(let i=1;i<4;i++){ if(board[r+dr*i]?.[c+dc*i]===current)count++;else break;}
-    for(let i=1;i<4;i++){ if(board[r-dr*i]?.[c-dc*i]===current)count++;else break;}
-    return count>=4;
-  });
-}
-function handleWin(player){
-  disableClicks();
-  if(player==='red'){
-    wins++;
-    status.textContent='You Win!';
-    flashLevel();
-    autoLevelUp();
-  } else {
-    losses++;
-    status.textContent='Computer Wins!';
-  }
-  updateScoreboard();
-  saveScores();
-}
-function disableClicks(){
-  document.querySelectorAll('.cell').forEach(cell=>cell.onclick=null);
-}
-function aiMove(){
-  let move;
-  const mode = difficulty.toLowerCase(); // ✅ always pull fresh value
-  switch(mode){
-    case 'easy':
-      move = randomMove();
-      break;
-    case 'medium':
-      move = blockMove() ?? randomMove();
-      break;
-    case 'hard':
-      move = winMove() ?? blockMove() ?? randomMove();
-      break;
-    case 'legendary':
-      move = smartMove() ?? winMove() ?? blockMove() ?? randomMove();
-      break;
-    default:
-      move = randomMove();
-      break;
-  }
-  if(move !== undefined) dropPiece(move);
-}
+    panels.forEach(panel => {
+      panel.classList.remove('show');
+      panel.setAttribute('aria-hidden', 'true');
+    });
 
-function randomMove(){
-  const options=board[0].map((_,i)=>i).filter(c=>!board[0][c]);
-  return options[Math.floor(Math.random()*options.length)];
-}
-function blockMove(){
-  for(let c=0;c<COLS;c++){
-    const r=findRow(c);
-    if(r!==-1){
-      board[r][c]='red';
-      if(checkWin(r,c)){ board[r][c]=null; return c;}
-      board[r][c]=null;
-    }
-  }
-}
-function winMove(){
-  for(let c=0;c<COLS;c++){
-    const r=findRow(c);
-    if(r!==-1){
-      board[r][c]='yellow';
-      if(checkWin(r,c)){ board[r][c]=null; return c;}
-      board[r][c]=null;
-    }
-  }
-}
-function smartMove(){
-  const safeMoves=[];
-  for(let c=0;c<COLS;c++){
-    const r=findRow(c);
-    if(r!==-1){
-      board[r][c]='yellow';
-      let opponentWin=false;
-      for(let cc=0;cc<COLS;cc++){
-        const rr=findRow(cc);
-        if(rr!==-1){
-          board[rr][cc]='red';
-          if(checkWin(rr,cc)) opponentWin=true;
-          board[rr][cc]=null;
-        }
-      }
-      board[r][c]=null;
-      if(!opponentWin) safeMoves.push(c);
-    }
-  }
-  return safeMoves.length ? safeMoves[Math.floor(Math.random()*safeMoves.length)] : randomMove();
-}
-function findRow(c){
-  for(let r=ROWS-1;r>=0;r--) if(!board[r][c]) return r;
-  return -1;
-}
-function autoLevelUp(){
-  let i=levelOrder.indexOf(difficulty);
-  if(i<levelOrder.length-1){
-    difficulty=levelOrder[i+1];
-    flashLevel();
-  }
-  updateScoreboard();
-  saveScores();
-}
-function flashLevel(){
-  levelEl.classList.add('flash');
-  setTimeout(()=>levelEl.classList.remove('flash'),800);
-}
-function updateScoreboard(){
-  winsEl.textContent=wins;
-  lossesEl.textContent=losses;
-  levelEl.textContent=difficulty.toUpperCase();
-  updateLevelButtons();
-}
-function updateLevelButtons(){
-  levelBtns.forEach(btn=>{
-    btn.classList.toggle('active',btn.dataset.diff===difficulty);
+    tab.classList.add('active');
+    tab.setAttribute('aria-selected', 'true');
+    panels[index].classList.add('show');
+    panels[index].setAttribute('aria-hidden', 'false');
   });
-}
-levelBtns.forEach(btn=>{
-  btn.onclick=()=>{
-    difficulty=btn.dataset.diff;
-    updateLevelButtons();
-    initBoard();
-    status.textContent='Difficulty set to '+difficulty.toUpperCase();
-    updateScoreboard();
-    saveScores();
-  };
 });
-  updateLevelButtons();
-let restartClicks=0;
-restartBtn.onclick=()=>{
-  restartClicks++;
-  if(restartClicks>=2){
-    wins=0; losses=0; difficulty='easy';
-    localStorage.removeItem('LLArcadeScores');
-    restartClicks=0;
-    status.textContent='Game fully reset.';
-  } else {
-    initBoard();
-    status.textContent='Game restarted (double-click to reset stats).';
-    setTimeout(()=>restartClicks=0,2000);
-  }
-  updateScoreboard();
-  saveScores();
+
+document.getElementById('genCreate').onclick = () => {
+  const craft = document.getElementById('craft').value;
+  const goal = document.getElementById('goal').value;
+  const help = document.getElementById('aihelp').value;
+  document.getElementById('outCreate').value =
+`🪄 CREATE PLAN
+Focus: ${craft}
+Today’s Goal: ${goal}
+AI Partner Task: ${help}
+Tip: Track your win in the app log — consistency builds credibility!`;
 };
-initBoard();
-updateScoreboard();
+
+const motivationalLines = [
+  'Remember: faith builds before funding.',
+  'Stay patient — your paper trail is your power.',
+  'Structure now saves stress later.',
+  'You’re not behind — you’re building what can’t be copied.',
+  'Discipline attracts the bag every time.'
+];
+
+document.getElementById('genCredit').onclick = () => {
+  const stage = document.getElementById('stage').value;
+  const learn = document.getElementById('learn').value;
+  const quote = motivationalLines[Math.floor(Math.random() * motivationalLines.length)];
+  document.getElementById('outCredit').value =
+`💳 CREDIT PLAN
+Business Stage: ${stage}
+First Step: ${learn}
+Tip: Once you finish, return to your CREATE app to log business activity — it proves legitimacy!
+💬 ${quote}`;
+};
+
+document.getElementById('copyAll').onclick = () => {
+  const text = `${document.getElementById('outCreate').value}\n\n${document.getElementById('outCredit').value}`.trim();
+  if (!text) {
+    alert('Generate a plan before copying your Starter Flow.');
+    return;
+  }
+  navigator.clipboard.writeText(text).then(() => {
+    alert('Your Starter Flow has been copied!');
+  }).catch(() => {
+    alert('Copy failed. Please select the text manually.');
+  });
+};
 </script>
+
 </body>
 </html>
-
-
